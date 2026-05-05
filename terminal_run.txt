@@ -1,0 +1,13 @@
+dataset_generation_batch:
+python dataset_generation_batch.py --images-root "./DICOM" --results-root "./PNG" --output-root "./dataset" --phases in ex --skip-empty --save-overlays
+
+main:
+train
+python main.py train `
+  --dicom-root "DICOM" `
+  --mask-root "PNG" `
+  --save-dir "runs/diaphragm_unet_test" `
+  --epochs 1 `
+  --batch-size 4 `
+  --image-size 512 512 `
+  --save-previews

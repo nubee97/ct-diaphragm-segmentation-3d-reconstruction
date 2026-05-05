@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+
+DICOM/
+PNG/
+PNG_clean/
+PNG_clean_dilated/
+dataset/
+runs/
+
+*.dcm
+*.pth
+*.pt
+*.npy
+*.nii
+*.nii.gz
