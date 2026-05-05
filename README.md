@@ -1,79 +1,159 @@
 # CT-Based Diaphragm Segmentation and 3D Reconstruction
 
-Research-oriented deep learning pipeline for automatic diaphragm segmentation from CT DICOM images using paired PNG segmentation masks. The project supports DICOM preprocessing, U-Net-based model training, validation, prediction, mask export, overlay generation, checkpoint saving, and future 3D reconstruction for diaphragm motion analysis.
+**Automated diaphragm segmentation in thoracic CT for COPD assessment using a U-Net-based deep learning pipeline.**
+
+This repository provides a research-oriented medical image analysis pipeline for automatic diaphragm segmentation from CT DICOM images using paired PNG segmentation masks. The project supports DICOM preprocessing, DICOM-to-mask matching, U-Net-based segmentation training, validation, prediction, mask export, overlay visualization, and downstream 3D reconstruction for diaphragm motion analysis.
+
+> **Research context:** This project is part of an ongoing medical AI research workflow focused on diaphragm function evaluation in chronic pulmonary disease, especially chronic obstructive pulmonary disease (COPD).
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Research Motivation](#research-motivation)
+- [Research Objective](#research-objective)
+- [Key Contributions](#key-contributions)
+- [Current Code Features](#current-code-features)
+- [Methodology](#methodology)
+- [Model Architecture](#model-architecture)
+- [Dataset and Data Format](#dataset-and-data-format)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Training](#training)
+- [Prediction](#prediction)
+- [3D Reconstruction Workflow](#3d-reconstruction-workflow)
+- [Research Results](#research-results)
+- [Comparative Analysis](#comparative-analysis)
+- [Privacy and Data Protection](#privacy-and-data-protection)
+- [Roadmap](#roadmap)
+- [Limitations](#limitations)
+- [Author](#author)
+- [Citation](#citation)
+- [License](#license)
 
 ---
 
 ## Overview
 
-This repository contains code for a medical image analysis pipeline focused on **CT-based diaphragm segmentation**. The system learns from paired DICOM CT slices and PNG segmentation masks, then predicts diaphragm regions from unseen CT images.
+The diaphragm is the primary respiratory muscle responsible for generating negative intrathoracic pressure during inhalation. In patients with COPD and other chronic pulmonary diseases, diaphragm structure and function can be affected by hyperinflation, reduced mobility, and mechanical inefficiency.
 
-The long-term goal of this project is to support **diaphragm function evaluation** by combining deep learning-based segmentation with 3D reconstruction and respiratory-phase analysis.
+This project aims to support automated diaphragm assessment by combining:
 
-This project is being developed as part of a research workflow intended for future IEEE-style publication.
+- thoracic CT DICOM image processing,
+- binary diaphragm mask generation,
+- U-Net-based segmentation,
+- respiratory phase analysis,
+- 2D overlay visualization,
+- and future 3D diaphragm reconstruction.
+
+The long-term research goal is to reduce manual segmentation workload, improve reproducibility, and provide quantitative tools for diaphragm function evaluation.
 
 ---
 
 ## Research Motivation
 
-Manual diaphragm segmentation from CT scans is time-consuming, labor-intensive, and can vary depending on the annotator. A reliable automated segmentation pipeline can help reduce manual workload, improve consistency, and support quantitative analysis of diaphragm structure and motion.
+Manual diaphragm segmentation in thoracic CT is difficult because the diaphragm is thin, low-contrast, anatomically variable, and closely connected to surrounding organs. Traditional semi-automatic methods can provide useful results, but they often require expert intervention for review, correction, and noise removal.
 
-This project aims to contribute toward a complete workflow for:
+For large-scale COPD assessment, this creates three major problems:
 
-- CT-based diaphragm segmentation
-- diaphragm motion analysis
-- 3D anatomical reconstruction
-- respiratory-phase comparison
-- medical AI research and clinical decision-support development
+1. **Time burden** — manual or semi-automatic segmentation is slow.
+2. **Inter-observer variability** — results may differ depending on the annotator.
+3. **Limited scalability** — large patient cohorts are difficult to process consistently.
+
+A fully automated deep learning model can address these limitations by learning diaphragm boundaries directly from CT slices and producing consistent segmentation masks for downstream clinical and research analysis.
 
 ---
 
-## Core Features
+## Research Objective
 
-- DICOM CT image loading and preprocessing
+The objective of this project is to develop a fully automated CT-based diaphragm segmentation pipeline that can:
+
+- segment diaphragm regions from thoracic CT DICOM slices,
+- support inhalation and exhalation phase analysis,
+- reduce dependence on manual expert correction,
+- generate reproducible segmentation outputs,
+- provide quantitative metrics such as Dice score and IoU,
+- support 3D diaphragm surface reconstruction,
+- and contribute to COPD-focused respiratory function assessment.
+
+---
+
+## Key Contributions
+
+This project is designed around two main research contributions:
+
+1. **Diaphragm-labeled CT dataset generation**  
+   A labeled dataset is generated from diaphragm mesh information by projecting mesh intersection points onto axial CT slices and converting them into binary PNG masks.
+
+2. **Fully automated U-Net-based segmentation**  
+   A U-Net-based model is trained to segment diaphragm regions from thoracic CT images, reducing the need for expert-guided semi-automatic segmentation.
+
+Additional contributions include:
+
+- DICOM-aware preprocessing and mask matching,
+- respiratory phase comparison between inhalation and exhalation,
+- segmentation-based 3D visualization,
+- surface area comparison between generated and original diaphragm meshes,
+- and a reproducible research code structure for medical AI experiments.
+
+---
+
+## Current Code Features
+
+The current repository is structured as a Python-based research codebase for CT diaphragm segmentation.
+
+Core implementation features include:
+
+- DICOM CT image loading
 - PNG segmentation mask loading
-- Automatic DICOM-to-PNG mask matching
-- 2D U-Net-based binary segmentation
+- Automatic matching between DICOM slice IDs and PNG mask IDs
+- CT image normalization and preprocessing
+- 2D binary U-Net segmentation
 - Train/validation workflow
-- Dice score validation
-- Best-model and last-model checkpoint saving
-- Prediction on unseen DICOM images
+- Dice-based validation
+- Best and last checkpoint saving
+- Prediction on unseen DICOM folders
 - Predicted mask export as PNG
-- Optional overlay visualization
-- Optional 3D volume and mesh reconstruction
-- Research-friendly structure for IEEE-style experiments
+- Optional overlay image generation
+- Local training output management under `runs/`
+- Privacy-safe repository structure that excludes medical data and checkpoints
+
+The public repository should contain code and documentation only. Real DICOM files, masks, checkpoints, and generated medical outputs should remain local.
 
 ---
 
 ## Methodology
 
-The current workflow follows this pipeline:
+The project follows the workflow below:
 
 ```text
-CT DICOM slices
+Thoracic CT DICOM slices
         ↓
-Image preprocessing and normalization
+DICOM loading and preprocessing
         ↓
 PNG segmentation mask matching
         ↓
-2D U-Net-based segmentation model
+2D U-Net-based binary segmentation
         ↓
-Binary diaphragm mask prediction
+Validation using segmentation metrics
         ↓
-Validation using Dice score
+Predicted diaphragm mask export
         ↓
-Prediction mask export
+Overlay visualization
         ↓
-Optional overlay visualization
+3D volume and surface reconstruction
         ↓
-Future 3D volume and mesh reconstruction
+Respiratory phase analysis
 ```
+
+The labeled dataset generation step is based on a semi-automatic mesh-to-slice process. A diaphragm mesh is intersected with axial CT planes, and the resulting points are projected onto corresponding 2D CT slices. These projected regions are converted into binary masks for supervised segmentation training.
 
 ---
 
 ## Model Architecture
 
-The project uses a U-Net-style segmentation model:
+The active model direction is based on a U-Net-style encoder-decoder architecture for 2D binary medical image segmentation.
 
 ```python
 from model import UNet
@@ -83,138 +163,51 @@ model = UNet(n_channels=1, n_classes=1)
 
 ### Model Type
 
-The current model is designed for **2D binary medical image segmentation**.
+| Item | Description |
+|---|---|
+| Input | Single-channel CT DICOM slice |
+| Output | Single-channel binary diaphragm mask |
+| Task | Diaphragm segmentation |
+| Architecture | 2D U-Net |
+| Loss | Binary segmentation loss such as BCE / BCEWithLogits |
+| Optimizer | Adam |
+| Main metrics | Dice coefficient, IoU, precision, recall |
 
-- Input: single-channel CT DICOM slice
-- Output: single-channel binary segmentation mask
-- Task: diaphragm segmentation
-- Loss function: binary segmentation loss such as `BCEWithLogitsLoss`
-- Main validation metric: Dice coefficient
+### U-Net Design
 
-### Recommended Model Direction
+The U-Net model uses an encoder-decoder structure:
 
-The recommended model direction for this project is:
+- The **encoder** extracts spatial and semantic features using convolution and downsampling.
+- The **decoder** restores spatial resolution through upsampling.
+- **Skip connections** preserve fine anatomical details.
+- A final binary output layer predicts the diaphragm region.
+
+For research extension, a stronger future model direction is:
 
 ```text
 2D Residual Attention U-Net with Group Normalization
 ```
 
-This architecture is suitable for medical imaging because:
-
-- CT images are grayscale, so the model uses one input channel.
-- The task is binary segmentation, so the model outputs one mask channel.
-- Residual blocks improve gradient flow during training.
-- Attention gates help the decoder focus on relevant anatomical regions.
-- GroupNorm is more stable than BatchNorm when training with small batch sizes.
-- Dropout can help reduce overfitting on limited medical datasets.
-
-The model outputs **raw logits**. Sigmoid activation should be applied during validation and prediction, not inside the model.
+This direction is suitable for medical CT segmentation because residual connections improve gradient flow, attention gates help the decoder focus on relevant anatomy, and GroupNorm can be more stable than BatchNorm when batch sizes are small.
 
 ---
 
-## Project Structure
+## Dataset and Data Format
 
-```text
-ct-diaphragm-segmentation-3d-reconstruction/
-│
-├── main.py                         # Main training and prediction script
-├── model.py                        # U-Net model architecture
-├── dataset.py                      # Dataset-related utilities
-├── dataset_generation_batch.py     # Dataset generation/preprocessing script
-├── requirements.txt                # Python dependencies
-├── terminal_run.txt                # Example terminal commands/logs
-├── README.md                       # Project documentation
-│
-├── DICOM/                          # Local CT DICOM data - not uploaded to GitHub
-├── PNG/                            # Local PNG segmentation masks - not uploaded to GitHub
-├── runs/                           # Training outputs/checkpoints - not uploaded to GitHub
-├── dataset/                        # Local generated/intermediate data - not uploaded to GitHub
-├── .venv/                          # Local virtual environment - not uploaded to GitHub
-└── __pycache__/                    # Python cache files - not uploaded to GitHub
-```
+The research dataset contains CT scans from three clinical institutions:
 
----
+| Institution | Number of Patients |
+|---|---:|
+| Dongguk University | 110 |
+| Yonsei University | 40 |
+| Kangwon University | 25 |
+| **Total** | **175** |
 
-## File Descriptions
+The dataset includes both inhalation and exhalation phases. Slice thickness and pixel spacing vary across scans, so preprocessing is required to standardize images before model training.
 
-### `main.py`
-
-Main script for training and prediction.
-
-Responsibilities include:
-
-- loading DICOM CT images
-- loading PNG segmentation masks
-- matching DICOM files to corresponding PNG labels
-- preprocessing image data
-- training the segmentation model
-- validating model performance
-- saving model checkpoints
-- running prediction on DICOM images
-- saving predicted masks
-- generating optional overlay previews
-- supporting future 3D reconstruction workflow
-
-### `model.py`
-
-Contains the U-Net model architecture.
-
-The expected model class is:
-
-```python
-class UNet(nn.Module):
-    ...
-```
-
-The training script expects:
-
-```python
-UNet(n_channels=1, n_classes=1)
-```
-
-### `dataset.py`
-
-Contains dataset-related code and utilities from earlier versions of the project.
-
-Depending on the active version of `main.py`, this file may be used as a supporting module or maintained as part of the research development history.
-
-### `dataset_generation_batch.py`
-
-Dataset generation or preprocessing script used to prepare training data, segmentation masks, overlays, or intermediate outputs.
-
-### `requirements.txt`
-
-Contains the Python dependencies required to run the project.
-
-### `terminal_run.txt`
-
-Contains example terminal commands, experiment logs, or running notes.
-
-### `DICOM/`
-
-Local folder containing CT DICOM images.
-
-This folder should not be uploaded to GitHub because DICOM files may contain sensitive patient metadata.
-
-### `PNG/`
-
-Local folder containing paired PNG segmentation masks.
-
-This folder should not be uploaded to GitHub if the labels are derived from medical data.
-
-### `runs/`
-
-Local folder for training outputs, checkpoints, prediction outputs, and preview images.
-
-This folder should not be uploaded to GitHub because it may contain large files and generated medical outputs.
-
----
-
-## Expected Dataset Format
+### Expected Local Folder Format
 
 The code expects DICOM images and PNG masks to be organized by patient ID.
-
-Example structure:
 
 ```text
 DICOM/
@@ -230,7 +223,7 @@ PNG/
     374_axial.png
 ```
 
-The matching logic is designed to pair files like:
+The matching logic pairs DICOM slice files with corresponding PNG masks:
 
 ```text
 IM-0002-0372.dcm  →  372_axial.png
@@ -238,7 +231,32 @@ IM-0002-0373.dcm  →  373_axial.png
 IM-0002-0374.dcm  →  374_axial.png
 ```
 
-This allows the model to learn from DICOM image slices and their corresponding PNG segmentation labels.
+This allows the model to learn from paired CT slices and binary diaphragm labels.
+
+---
+
+## Project Structure
+
+```text
+ct-diaphragm-segmentation-3d-reconstruction/
+│
+├── main.py                         # Main CLI script for training and prediction
+├── model.py                        # U-Net model architecture
+├── dataset.py                      # Dataset utilities and earlier dataset logic
+├── dataset_generation_batch.py     # Mesh/DICOM-based dataset generation workflow
+├── requirements.txt                # Python dependencies
+├── terminal_run.txt                # Example commands and experiment notes
+├── README.md                       # Project documentation
+│
+├── DICOM/                          # Local CT DICOM data - not uploaded
+├── PNG/                            # Local PNG segmentation masks - not uploaded
+├── PNG_clean/                      # Optional cleaned masks - not uploaded
+├── PNG_clean_dilated/              # Optional cleaned/dilated masks - not uploaded
+├── runs/                           # Training outputs/checkpoints - not uploaded
+├── dataset/                        # Local generated/intermediate data - not uploaded
+├── .venv/                          # Local virtual environment - not uploaded
+└── __pycache__/                    # Python cache files - not uploaded
+```
 
 ---
 
@@ -275,10 +293,10 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-If needed, install the core dependencies manually:
+If needed, install core dependencies manually:
 
 ```powershell
-python -m pip install torch pydicom pillow numpy scikit-image matplotlib plotly open3d
+python -m pip install torch torchvision pydicom pillow numpy scikit-image matplotlib plotly open3d trimesh opencv-python
 ```
 
 ---
@@ -287,7 +305,7 @@ python -m pip install torch pydicom pillow numpy scikit-image matplotlib plotly 
 
 ### Quick 1-Epoch Test
 
-Run this first to confirm that the DICOM and PNG folders are correctly matched and that the training pipeline works.
+Use this command first to confirm that DICOM images and PNG masks are correctly matched.
 
 ```powershell
 python main.py train `
@@ -300,7 +318,7 @@ python main.py train `
   --save-previews
 ```
 
-### Full Training
+### Full Training Example
 
 ```powershell
 python main.py train `
@@ -313,11 +331,24 @@ python main.py train `
   --save-previews
 ```
 
+### Expected Training Outputs
+
+```text
+runs/diaphragm_unet_v1/
+  best_model.pth
+  last_model.pth
+  previews/
+  training_log.csv
+```
+
+`best_model.pth` stores the best-performing model based on validation performance.  
+`last_model.pth` stores the latest model state from the final epoch.
+
 ---
 
 ## Prediction
 
-After training, use the saved checkpoint for prediction.
+After training, use the saved checkpoint to predict diaphragm masks from unseen DICOM images.
 
 ```powershell
 python main.py predict `
@@ -328,208 +359,134 @@ python main.py predict `
   --save-overlays
 ```
 
-Expected prediction outputs may include:
+Expected prediction outputs:
 
 ```text
-predicted_masks/
-overlays/
+runs/diaphragm_predictions/
+  predicted_masks/
+  overlays/
 ```
 
 ---
 
-## Optional 3D Reconstruction
+## 3D Reconstruction Workflow
 
-The long-term goal of this project includes 3D reconstruction from predicted 2D masks.
-
-The intended 3D workflow is:
+The long-term goal of this repository includes 3D reconstruction from predicted 2D diaphragm masks.
 
 ```text
 Predicted 2D masks
         ↓
-Stack masks by slice location
+Stack masks by slice position
         ↓
 Create 3D binary volume
         ↓
-Generate surface mesh
+Generate diaphragm surface mesh
         ↓
-Export PLY mesh
+Export PLY / HTML visualization
         ↓
-Visualize diaphragm surface in 3D
+Measure respiratory-phase surface differences
 ```
 
-Potential outputs may include:
+Potential outputs:
 
 ```text
 predicted_volume.npy
 generated_mesh.ply
 mesh_preview.html
+surface_area_results.csv
 ```
 
-This part is intended to support future diaphragm motion and shape analysis.
+This 3D reconstruction stage supports diaphragm surface analysis, exhalation/inhalation comparison, and COPD-related respiratory function evaluation.
 
 ---
 
-## Current Training Status
+## Research Results
 
-Example successful data-loading output:
+The manuscript reports experiments on thoracic CT scans from **175 patients** across three institutions. For the validation experiment, the model was trained on **100 patients** and validated on **75 patients**.
 
-```text
-Loaded 3586 sample(s) from DICOM
-Skipped 1 DICOM file(s) with no matching PNG mask.
-Device: cpu
-Training samples: 2869
-Validation samples: 717
-```
+### Main Validation Metrics
 
-This means the pipeline successfully matched almost all DICOM slices with their corresponding PNG masks.
+| Metric | Result |
+|---|---:|
+| Validation Loss | 0.0016 |
+| Mean IoU | 0.9126 |
+| Dice Coefficient | 0.9272 |
 
-One skipped DICOM slice is usually acceptable if the corresponding PNG label does not exist.
+These results indicate strong segmentation overlap between predicted diaphragm masks and the reference labels.
 
----
+### Individual-Patient Stability
 
-## Checkpoints and Outputs
-
-During training, the script may save:
-
-```text
-best_model.pth
-last_model.pth
-previews/
-```
-
-### `best_model.pth`
-
-The best-performing checkpoint based on validation performance.
-
-### `last_model.pth`
-
-The most recent checkpoint saved during training.
-
-### `previews/`
-
-Validation preview images showing:
-
-- original CT image
-- ground-truth PNG mask
-- predicted mask
+The reported validation loss ranges from **0.0011 to 0.0019**, while Dice coefficients range from **0.9231 to 0.9280** across individual patients. This suggests stable segmentation performance across anatomical variation.
 
 ---
 
-## Research Evaluation Plan
+## Comparative Analysis
 
-For an IEEE-style research paper, the project should be evaluated using patient-level experiments and multiple segmentation metrics.
+The U-Net-based model was compared against a previous semi-automatic segmentation approach.
 
-Recommended evaluation metrics:
+| Method | Dice Coefficient |
+|---|---:|
+| Semi-automatic segmentation | 0.8400 |
+| Proposed U-Net model | 0.9272 |
 
-| Category | Metric |
-|---|---|
-| Segmentation overlap | Dice coefficient |
-| Segmentation overlap | Intersection over Union |
-| Pixel-level performance | Precision |
-| Pixel-level performance | Recall |
-| Boundary accuracy | Hausdorff Distance |
-| Boundary accuracy | Average Surface Distance |
-| 3D reconstruction | Mesh-to-mesh surface distance |
-| Clinical motion analysis | Inspiratory/expiratory diaphragm displacement |
+The U-Net model showed improved consistency in diaphragm segmentation and stronger sensitivity to respiratory phase changes.
 
----
+### Surface Area Comparison
 
-## Important Research Note: Patient-Level Split
+The manuscript also compares generated diaphragm surfaces with original diaphragm meshes for selected cases.
 
-For serious medical AI research, validation should be performed at the **patient level**, not only at the random slice level.
+| Case | Original Surface Area (mm²) | Generated Surface Area (mm²) | Difference (mm²) | Percentage Difference |
+|---|---:|---:|---:|---:|
+| A | 4540.65 | 4955.28 | 414.63 | 9.13% |
+| B | 5208.46 | 6427.32 | 1218.86 | 23.39% |
+| C | 5260.51 | 5616.73 | 356.22 | 6.77% |
 
-A random slice-level split can cause data leakage because slices from the same patient may appear in both training and validation sets.
-
-Recommended final research split:
-
-```text
-Training patients:    70–80%
-Validation patients:  10–15%
-Test patients:        10–15%
-```
-
-The final test set should contain completely unseen patients.
+Cases A and C show close alignment between the generated and original diaphragm surfaces, while Case B indicates that complex anatomical regions may still require further model refinement.
 
 ---
 
-## Planned Research Experiments
+## Research Interpretation
 
-Recommended experiments for publication:
+The results suggest that U-Net-based segmentation can reduce manual intervention while maintaining strong quantitative performance. Compared with the semi-automatic method, the proposed approach provides:
 
-1. Baseline U-Net vs Residual U-Net vs Attention Residual U-Net.
-2. Slice-level split vs patient-level split comparison.
-3. Inspiratory vs expiratory phase segmentation performance.
-4. 2D segmentation accuracy using Dice, IoU, precision, and recall.
-5. Boundary accuracy using Hausdorff Distance and Average Surface Distance.
-6. 3D reconstruction quality using surface distance metrics.
-7. Diaphragm motion estimation between respiratory phases.
-8. Runtime and memory usage comparison.
-9. Qualitative visualization of segmentation overlays and 3D meshes.
-10. External validation using data from another institution if available.
+- higher Dice-based segmentation accuracy,
+- improved reproducibility,
+- better scalability for larger patient cohorts,
+- stronger consistency across respiratory phases,
+- and better support for downstream 3D diaphragm analysis.
+
+The model also supports COPD-focused respiratory assessment by enabling quantitative comparison between inhalation and exhalation diaphragm surfaces.
 
 ---
 
-## Potential IEEE Paper Direction
+## Privacy and Data Protection
 
-Possible research title:
+This repository should not include real patient DICOM files, PNG masks, trained checkpoints, or generated medical outputs.
 
-```text
-Automated CT-Based Diaphragm Segmentation and 3D Reconstruction Using a Lightweight U-Net Architecture
-```
-
-Alternative title:
-
-```text
-Deep Learning-Based Diaphragm Motion Assessment from Inspiratory and Expiratory CT Using 2D Segmentation and 3D Surface Reconstruction
-```
-
-Possible contribution statement:
-
-```text
-This study proposes a deep learning-based pipeline for automatic diaphragm segmentation from CT images and subsequent 3D surface reconstruction. The method combines a U-Net-based segmentation model with DICOM-to-mask preprocessing, patient-level evaluation, and mesh-based visualization to support quantitative diaphragm function analysis.
-```
-
----
-
-## Roadmap
-
-- [ ] Add patient-level train/validation/test split
-- [ ] Add IoU, precision, and recall metrics
-- [ ] Add Hausdorff Distance and Average Surface Distance
-- [ ] Add CSV result export for every patient
-- [ ] Add training resume support
-- [ ] Add estimated training time and progress logging
-- [ ] Add automatic checkpoint resume
-- [ ] Add 3D mesh-to-mesh evaluation
-- [ ] Add respiratory-phase diaphragm displacement measurement
-- [ ] Add publication-ready result figures
-- [ ] Add IEEE-style experiment tables
-- [ ] Add external validation experiments
-
----
-
-## Privacy and Data Notice
-
-This repository should not contain real patient DICOM data, PNG labels, trained checkpoints, or generated medical outputs.
-
-The following folders should remain local and should not be uploaded to GitHub:
+The following folders and file types should remain local:
 
 ```text
 DICOM/
 PNG/
+PNG_clean/
+PNG_clean_dilated/
 dataset/
 runs/
 .venv/
 __pycache__/
+*.dcm
+*.pth
+*.pt
+*.npy
+*.nii
+*.nii.gz
 ```
 
-DICOM files may contain protected metadata and must be handled according to institutional and medical data privacy requirements.
+DICOM files may contain sensitive patient metadata and must be handled according to institutional review board approval, hospital policy, and medical data privacy requirements.
 
 ---
 
 ## Recommended `.gitignore`
-
-Before uploading code to GitHub, use a `.gitignore` file similar to this:
 
 ```gitignore
 .venv/
@@ -539,6 +496,8 @@ __pycache__/
 # Patient/private medical data
 DICOM/
 PNG/
+PNG_clean/
+PNG_clean_dilated/
 dataset/
 *.dcm
 *.dicom
@@ -561,23 +520,40 @@ runs/
 
 ---
 
+## Roadmap
+
+- [ ] Push full source code to the public repository
+- [ ] Add patient-level train/validation/test split
+- [ ] Add test-set evaluation on completely unseen patients
+- [ ] Add IoU, precision, recall, and F1-score export
+- [ ] Add Hausdorff Distance and Average Surface Distance
+- [ ] Add CSV export for patient-level metrics
+- [ ] Add automatic checkpoint resume
+- [ ] Add training time estimation and progress logging
+- [ ] Add 3D mesh reconstruction from predicted masks
+- [ ] Add surface area comparison between inhalation and exhalation
+- [ ] Add Z-value respiratory phase analysis
+- [ ] Add publication-ready result figures
+- [ ] Add external validation from another institution
+
+---
+
 ## Limitations
 
-Current limitations to address before publication:
+Current limitations include:
 
-- Patient-level train/validation/test split should be implemented.
-- Full test-set evaluation needs to be added.
-- More metrics are required beyond Dice score.
-- External validation would improve reliability.
-- 3D mesh accuracy should be quantitatively evaluated.
-- Clinical interpretation should be reviewed with domain experts.
-- The current project is research code and not a clinical product.
+- The public repository should not include the private medical dataset.
+- Model performance depends on the quality of generated diaphragm masks.
+- Complex diaphragm anatomy may still produce larger surface-area deviations.
+- External validation is required before broader clinical claims.
+- The project is research code and is not a certified clinical tool.
+- The method should not be used for diagnosis without regulatory approval and expert medical validation.
 
 ---
 
 ## Disclaimer
 
-This project is intended for research and development only. It is not a certified medical device and should not be used for clinical diagnosis without proper validation, regulatory approval, and expert medical review.
+This project is intended for research and development only. It is not a certified medical device and should not be used for clinical diagnosis, treatment planning, or patient management without proper validation, regulatory approval, and clinical expert review.
 
 ---
 
@@ -611,6 +587,6 @@ License information should be added before public release.
 
 Recommended options:
 
-- MIT License for open research code
-- Apache-2.0 License for more explicit patent protection
-- Private repository if dataset or institutional restrictions apply
+- **MIT License** for open research code
+- **Apache-2.0 License** for explicit patent protection
+- **Private repository** if institutional or dataset restrictions apply
